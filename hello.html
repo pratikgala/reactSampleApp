@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello World</title>
+    <script src="https://unpkg.com/react@latest/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="container"> </div>
+
+    <script type="text/babel">
+		var Comment = React.createClass({
+
+			// Maintain state
+			getInitialState: function (){
+				return {editing: false}
+			},
+
+			// an example of event handling, event handling here means the onClick function edit
+			edit: function(){
+				this.setState({editing: true})
+			},
+			save: function(){
+				// here is an example of using refs in code.
+				// refs basically take the newText from the textarea
+
+				// "this.props.updateCommentText" example of child 
+				// having access to a parent functions
+				// this is basicaly called - passing functions as props
+				this.props.updateCommentText(this.refs.newText.value, this.props.index);
+				this.setState({editing: false})
+			},
+
+			remove: function(){
+				// pass the index of the element to be removed
+
+				// "this.props.deleteFromBoard" this is an example of a child having access to a
+				// parent function basically called passing props as functions
+				this.props.deleteFromBoard(this.props.index);
+			},
+			renderForm: function(){
+				return (
+					<div>
+						<textarea ref="newText" defaultValue={this.props.children}></textarea>
+						<button onClick={this.save}>Save</button>
+					</div>
+				); 
+			},
+			renderNormal: function(){
+				return (
+					<div>
+						<div>{ this.props.children} </div>
+						<button onClick={this.edit}> Edit </button>
+						<button onClick={this.remove}> Remove </button>
+					</div>
+				); 
+			},
+
+			render: function(){
+				if(this.state.editing){
+					return this.renderForm();
+				}else{
+					return this.renderNormal();
+				}
+			}
+		});
+
+		var Board = React.createClass({
+
+			getInitialState: function(){
+				return ({
+					"comments": []
+				});
+			},
+
+			add: function(text){
+				var currComments = this.state.comments;
+				currComments.push(text);
+				this.setState({comments: currComments});
+			},
+
+			// Updating state and removing comments.
+			updateComment: function (newText, i) {
+				console.log('updating State:'+ i);
+
+				var getState = this.state.comments;
+				getState[i] = newText;
+				this.setState({comments: getState});
+			},
+
+			removeComment: function (i) {
+				console.log('removing comment:'+ i);
+
+				var currState = this.state.comments;
+				currState.splice(i, 1);
+				this.setState({ comments : currState });
+			},
+
+			eachComment: function (item, i) {
+				return (
+				<Comment key={i} index={i} updateCommentText={this.updateComment}
+				 deleteFromBoard={this.removeComment}>
+					{item} 
+				</Comment>);
+			},
+
+			render: function(){
+				return (
+				<div>
+					<button onClick={this.add.bind(null, 'Edit Your Text')}>Add</button>
+					<div>
+						{
+							// This is an Example of creating multiple child components
+							this.state.comments.map(this.eachComment)
+						}
+					</div>
+				</div>
+				);
+			}
+		});
+		ReactDOM.render(
+			<Board/>,		 	
+			 document.getElementById('container')
+		);
+    </script>
+  </body>
+</html>
